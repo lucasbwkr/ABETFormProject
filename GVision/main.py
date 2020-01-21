@@ -37,10 +37,11 @@ def run_file_through_google_vision(dir_tree: object):
         Details ::  Loops through every folder in tree to get there files. Then sends each 
                     file into 'googleVisionTest.read_image()' function, and storing the result
     '''
+    #TODO ::  might want to change logic when less then 100 files are given
     hashtag_loading_block_size = int(dir_tree.file_count/100)
     if hashtag_loading_block_size == 0:
         hashtag_loading_block_size = 1
-        
+
     start = 0
     for x in dir_tree.folders:
         for y in x.files:
