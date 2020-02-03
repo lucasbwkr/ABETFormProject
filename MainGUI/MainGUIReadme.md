@@ -9,4 +9,4 @@
       Your terminal should look like this after activating it.
       
       `(env) /path/to/your/project`
-  4) The page has not yet been implemented as this is a skeleton to get started.
+  4) Partially implemented HTML page.
