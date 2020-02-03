@@ -5,7 +5,26 @@
 {% endblock %}
 
 {% block body %}
-<div class="content">
-    <h1></h1>
+<div class="grid-container">
+    <h1>ABET Form Scanner</h1>
+    <div class="grid-item">
+        Results File Name: 
+        <input type="text">
+    </div>
+    <div class="grid-item">
+        Set Date:
+        <input type="date">
+    </div>
+    <div class="grid-item">
+        <div id="drop-area">
+            <form class="my-form">
+              <p>Upload multiple files with the file dialog or by dragging and dropping images onto the dashed region</p>
+              <input type="file" id="fileElem" multiple accept="image/*" onchange="handleFiles(this.files)">
+              <label class="button" for="fileElem">Select some files</label>
+            </form>
+            <progress id="progress-bar" max=100 value=0></progress>
+            <div id="gallery"></div>
+          </div>
+    </div>
 </div>
 {% endblock %}
