@@ -4,6 +4,7 @@ import time
 import file_scanner as file_scanner
 import custom_progressbar as custom_progressbar
 import googleVisionTest as GVT
+import cropImages as getAnswers
 from typing import List
 from os.path import isfile, join
 
@@ -45,7 +46,8 @@ def run_file_through_google_vision(dir_tree: object):
     start = 0
     for x in dir_tree.folders:
         for y in x.files:
-            x.save_output_result(y, GVT.read_image(x.directory+"/"+y))
+            #x.save_output_result(y, GVT.read_image(x.directory+"/"+y))
+            getAnswers.get_file_answers(x.directory+"/"+y,x.save_dist+"/"+y)
             if start % hashtag_loading_block_size == 0:
                 time.sleep(.01)
                 custom_progressbar.update_progress(

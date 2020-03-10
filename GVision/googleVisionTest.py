@@ -6,12 +6,12 @@ from google.cloud import vision
 from google.cloud.vision import types
 
 def read_image(path):
-        return "test"
+
         # Instantiates a client
         client = vision.ImageAnnotatorClient()
 
         # The name of the image file to annotate
-        file_name = os.path.abspath('D:\documents\Spring2020\swe2\images.jpg')
+        file_name = os.path.abspath('/Users/jobvillamil/Documents/Spring 2020/SWE2/CS4273Project/forms/cs4273_form.jpeg')
 
         # Loads the image into memory
         with io.open(file_name, 'rb') as image_file:
@@ -21,10 +21,28 @@ def read_image(path):
 
         # Performs label detection on the image file
         response = client.text_detection(image=image)
-        labels = response.text_annotations
+        texts = response.text_annotations
+
+        
+        print('Texts:')
+
+        for text in texts:
+                print('\n"{}"'.format(text.description))
+
+                vertices = (['({},{})'.format(vertex.x, vertex.y)
+                        for vertex in text.bounding_poly.vertices])
+
+                print('bounds: {}'.format(','.join(vertices)))
+
+        if response.error.message:
+                raise Exception(
+                '{}\nFor more info on error messages, check: '
+                'https://cloud.google.com/apis/design/errors'.format(
+                        response.error.message))
 
         temp_return = ""
-        for label in labels:
-                temp_return += label
+
+
+        #print(temp_return)
         
         return temp_return

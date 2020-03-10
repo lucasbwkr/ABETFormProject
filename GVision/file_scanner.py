@@ -41,6 +41,8 @@ class Folder:
             return new_file
 
         def is_image_file(self, file_name : str) -> bool:
+            if(file_name == '.DS_Store'):
+                return False
             #TODO create a function and will check for invalid files
             return True
         

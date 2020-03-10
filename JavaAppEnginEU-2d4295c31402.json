@@ -1,0 +1,12 @@
+{
+  "type": "service_account",
+  "project_id": "composed-anvil-254017",
+  "private_key_id": "2d4295c3140211a6119bc5ed469a3daed06a4456",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQDPRWiFYalEigEf\nsgD9QQdrIo+ZVOAp1KSRtaP7UL1LNzCjv9e5QA+l9graZQvKBFQA9r6ftfVyQwuy\nvsiF0vM5GvIvflSk287AnyRQoBt0NEI4ktw7f17fhLW+/OEaGZl/cziyOm9M+j/T\nI1b++08PsMX4o0aJIMI6369LKY27TXRLa5J/nqYTJkVFtP9aLsJXx8gwyzQEuMlG\nVcp0iJSE0xCOB46Vv8W6kincEm8gk1oGWv3drHV0ogz4retGX0agk7DlbJRAn7Fx\nJICdrkzarXye9vQrMgQnvX/Z6BdKijJBMurTlkpvE2o+HJEN3XGgTCqy7CUMY15X\nnKQewjWtAgMBAAECggEADBX5QAEfkwWesVKFEGoHYiBysfIQccf6gkeOj1ktdye5\nmuwVCrIuUhL3HjXIT/LcKMPlKMq99uLAxB8FR25d7H1tKUagbg4mGmESh5lVDdEn\n769lOZqV9YpsuZKlF+CYbNAoZRYXXCxMZptCgkg08OPcdgDOnFuFZSmatFMw4T60\n41CcxwVcCL3+I/02NRZRQ7xOi40tpo6Yzq1w9iVZQkqKd4qBmmnvUe5R+uwVT1Zj\n5ixfXtq9koy/SdZXjWoKc23G8chohbA90K/sEqbsGoiaxpHf8nELrPmGo35f5T6h\nVkqGN44W1Q6sZKL1pOilAshDmTQyAdNzBA+LF618OQKBgQD8WblTwvWHQybrgDbU\n9aXcYrktAZ7HjmMs+3RjcKvN3AUwrIQW+sGTJ0eTISNZIUpCN8Vp0nMpUWkTb/aE\nS825dfFyWYOFlAr77wprXIZ4Lea7qpVR/tDvQRtPM9BO1/dA9ooVUXjXkARJx9jn\n4NsOEpZhxj7wS2ePFbq3cnDVaQKBgQDSRMmI8sTW+BnR5gEkU6bCGjiVx1bnmRd4\nBVmB+Rs5NFN54b/zRqNDneT5pfeVc+ATFd9N7DX1VkmJtDInVkiyXYDuMUrzGdYk\nYJXAyQTbBnaUFNV+OQTG8cveFMzMu4lXM4BJiWWCsZVEplcRw1FGqFChjYNcmc7d\nHkMBnvFBpQKBgC0kr+64FcxYywGeMjDusPk4AAB5Jbp1UnCdmzie011EWvlWI1sp\nCLAWestrRjOPrQUjjQFdUJS3p6B+iw8nsGnZG5RlRw4CaeSf4rFKIBQnwfsYjRXa\nC+6BKy2EC2PPZsAMWq9tn7yQWvQH+Fmi9A0UbiqXmHLMSn5iWMCwjFbhAoGATrLi\nP3ilxdPMTixpBwCsLIAF58FZPIunJgvSiXwD/XAhQkAFSPeKSdeCCRJeTTi2iE4q\naw7azz2BfqHMF78KrH+krwISDFUCOlFQG3zhbVzI6vm1Qm3y5MdBR5i/Ym1apSGo\nhV2Aed8fgDdF5WcWN3zt2NmPbgw/SbF24NdtcuUCgYEA09bqUxFUBL0wnJ9ooUoU\ndA7yJgzcvNam7jRuDTjaPwgw5j729xSbbwfou4Uohi11wZKS9LhWZBFcSUm8tR5e\nPcgEBfHel2ab2cIv/PkxwZlk7+WAwtD06tgPFc/4Amskrrvlx43rr90wvaADGvKx\nono9ytjhJstk9PvFWZuM1MQ=\n-----END PRIVATE KEY-----\n",
+  "client_email": "abetscanner@composed-anvil-254017.iam.gserviceaccount.com",
+  "client_id": "101390070436177212338",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/abetscanner%40composed-anvil-254017.iam.gserviceaccount.com"
+}
