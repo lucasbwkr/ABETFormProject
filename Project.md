@@ -35,4 +35,5 @@ We will need to link `gVisionAuth.json` to a environment variable
 
 ### CropImages
 
-install `pip install Pillow`
+run `pip install Pillow`
+run `pip install Gooey` 
