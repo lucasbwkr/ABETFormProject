@@ -1,7 +1,6 @@
 import argparse
 from enum import Enum
 import io
-
 from google.cloud import vision
 from google.cloud.vision import types
 from PIL import Image, ImageDraw
@@ -14,7 +13,21 @@ class FeatureType(Enum):
     WORD = 4
     SYMBOL = 5
 
-answerOption = ['Strongly Disagree','Disagree','Neutral','Agree','Strongly Agree']
+answerOption = ['strongly disagree','disagree','neutral','agree','strongly agree']
+
+def findAnswerOption(listV):
+    if not listV or listV == []:
+        return False
+    elif listV == [True, True, False, True, False]: #Strongly agree
+        return answerOption[0]
+    elif listV == [False, True, False, True, False]: #Strongly Disagree
+        return answerOption[1]
+    elif listV == [False, False, True, False, False]: #Neutral
+        return answerOption[2]
+    elif listV == [False, False, False, True, False]: #agree
+        return answerOption[3]
+    else:
+        return answerOption[4] #Strongly agree
 
 def crop_box(image, bounds):
     """Draw a border around the image using the hints in the vector list."""
@@ -59,6 +72,7 @@ def get_document_bounds(image_file, feature):
     paragraphs = []
     lines = []
     breaks = vision.enums.TextAnnotation.DetectedBreak.BreakType
+    lastValue = ''
     #https://stackoverflow.com/questions/51972479/get-lines-and-paragraphs-not-symbols-from-google-vision-api-ocr-on-pdf/52086299
     #for page in document.pages:
      #   for block in page.blocks:
@@ -103,8 +117,14 @@ def get_document_bounds(image_file, feature):
                             lines.append(line)
                             para += line
                             line = ''
-                if (para in answerOption and feature == FeatureType.PARA):
+                if (any(map(para.strip(' \t\n\r').lower().__contains__, answerOption)) and (len(para.strip(' \t\n\r')) < 20) and feature == FeatureType.PARA):
+                    # checking for duplicates
+                    temp = findAnswerOption(list(map(para.strip(' \t\n\r').lower().__contains__, answerOption)))
+                    if lastValue != '' and lastValue == temp:
+                        bounds.pop()
+                    lastValue = temp
                     bounds.append(paragraph.bounding_box)
+                #print(para)
 
     # The list `bounds` contains the coordinates of the bounding boxes.
     return bounds
