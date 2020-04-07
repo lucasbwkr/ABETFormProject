@@ -16,6 +16,6 @@ def main():
 
     # Loading directory data
     dl.start(args.FolderChooser, args.FolderDist)
-
+    
 if __name__ == "__main__":
     sys.exit(main())

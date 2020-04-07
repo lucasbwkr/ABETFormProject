@@ -217,12 +217,12 @@ def render_doc_text(filein, fileout):
     #temp.show()
     if fileout != 0:
         save_images(images, fileout)
-        
+        return images
     else:
         image.show()
 
 def get_file_answers(file_path, file_dist):
-    render_doc_text(file_path, file_dist)
+    return render_doc_text(file_path, file_dist)
 
 
     

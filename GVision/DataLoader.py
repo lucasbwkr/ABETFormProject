@@ -5,9 +5,10 @@ import file_scanner as file_scanner
 import custom_progressbar as custom_progressbar
 import googleVisionTest as GVT
 import cropImages as getAnswers
+import numpy as np
 from typing import List
 from os.path import isfile, join
-
+from tensorflow import keras
 
 def create_result_folder(folder: object):
     ''' Summary ::  Creates and populates folders and resulting file
@@ -43,16 +44,36 @@ def run_file_through_google_vision(dir_tree: object):
     if hashtag_loading_block_size == 0:
         hashtag_loading_block_size = 1
 
+    model = keras.models.load_model('model.h5')
     start = 0
+
+    questions_per_page = 8
+    answers_per_question = 5
+    total_result = np.zeros((questions_per_page,answers_per_question))
+
     for x in dir_tree.folders:
         for y in x.files:
             #x.save_output_result(y, GVT.read_image(x.directory+"/"+y))
-            getAnswers.get_file_answers(x.directory+"/"+y,x.save_dist+"/"+y)
+            imgs = getAnswers.get_file_answers(x.directory+"/"+y,x.save_dist+"/"+y)
+            imgs = [np.asarray(img.convert('L')).reshape(160, 300,1) for img in imgs]
+            imgs = np.array(imgs, dtype=np.float32)
+            # print(imgs.shape)
+            preds = model.predict(imgs)
+            
+            preds = preds[:,0]
+            # print(preds)
+            preds = preds.reshape((questions_per_page, answers_per_question))
+            # print(preds.shape)
+            result = preds > .90
+            print(preds)  
+            total_result += result         
+
             if start % hashtag_loading_block_size == 0:
                 time.sleep(.01)
                 custom_progressbar.update_progress(
                     (.01*(start/hashtag_loading_block_size)))
             start += 1
+    print(total_result)
 
 
 def create_result_dir_tree(dir_tree: object):
@@ -94,9 +115,9 @@ def start(path, dist):
     print("Number of Files Scanned :: " + str(dir_tree.file_count) + "\n")
 
     print("\nCalulating Scanned Files :: \n")
-    run_file_through_google_vision(dir_tree)
+    results = run_file_through_google_vision(dir_tree)
 
     print("\n\nOutputting Results . . .\n")
-    create_result_dir_tree(dir_tree)
+    create_result_dir_tree(dir_tree, )
     # Opening Dist Folder
     webbrowser.open('file:///' + dist)
