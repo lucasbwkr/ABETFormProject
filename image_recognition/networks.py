@@ -4,6 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from tensorflow import keras
+from tensorflow.keras.regularizers import l2
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import InputLayer
 from tensorflow.keras.layers import Convolution2D, Dense, MaxPooling2D, Flatten, Dropout
@@ -23,24 +24,36 @@ convolutions: a list of tuples specifiying the number of filters and the kernel 
        lrate: learning rate
 ''' 
 
-def create_classifier_network(image_size, nchannels, convolutions, pooling, dense, n_classes=2, lambda_l2=.0001, p_dropout=0.5, lrate=.001):
+def create_classifier_network(image_size, nchannels, convolutions, pooling, dense, n_classes=2, lambda_l2=.0001, p_dropout=0.5, lrate=.001, activation='elu'):
     model = Sequential()
     model.add(InputLayer(input_shape=(image_size[0], image_size[1], nchannels),name='input'))
    
     ### Add convolutional layers
     for i, (n_filters, kernel_size) in enumerate(convolutions):
         name = 'C' + str(i)
-        model.add(Convolution2D(filters=n_filters,
-                               kernel_size=(kernel_size,kernel_size),
-                               strides=2,
-                               padding='valid',
-                               use_bias=True,
-                               kernel_initializer='random_uniform',
-                               bias_initializer='zeros',
-                               name=name,
-                               activation='elu',
-                               kernel_regularizer=tf.keras.regularizers.l2(lambda_l2)
-    ))
+        if lambda_l2:
+            model.add(Convolution2D(filters=n_filters,
+                                   kernel_size=(kernel_size,kernel_size),
+                                   strides=1,
+                                   padding='valid',
+                                   use_bias=True,
+                                   kernel_initializer='random_uniform',
+                                   bias_initializer='zeros',
+                                   name=name,
+                                   activation=activation,
+                                   kernel_regularizer=l2(lambda_l2)
+        ))
+        else:
+            model.add(Convolution2D(filters=n_filters,
+                                   kernel_size=(kernel_size,kernel_size),
+                                   strides=1,
+                                   padding='valid',
+                                   use_bias=True,
+                                   kernel_initializer='random_uniform',
+                                   bias_initializer='zeros',
+                                   name=name,
+                                   activation=activation
+        ))
         # Adding pooling layer if specified
         if pooling[i] != 0:
             model.add(MaxPooling2D(pool_size=(pooling[i],pooling[i]),
@@ -53,24 +66,41 @@ def create_classifier_network(image_size, nchannels, convolutions, pooling, dens
     # Add dense layers
     for i,d in enumerate(dense): 
         name = 'D' + str(i)
-        model.add(Dense(units=d,
-                       activation='elu',
-                       use_bias=True,
-                       kernel_initializer='truncated_normal',
-                       bias_initializer='zeros',
-                       name=name,
-                       kernel_regularizer=tf.keras.regularizers.l2(lambda_l2)))
-    
-        model.add(Dropout(p_dropout))
+        if lambda_l2:
+            model.add(Dense(units=d,
+                           activation=activation,
+                           use_bias=True,
+                           kernel_initializer='truncated_normal',
+                           bias_initializer='zeros',
+                           name=name,
+                           kernel_regularizer=l2(lambda_l2)))
+        else:
+            model.add(Dense(units=d,
+                           activation=activation,
+                           use_bias=True,
+                           kernel_initializer='truncated_normal',
+                           bias_initializer='zeros',
+                           name=name))
+        
+        if p_dropout:
+            model.add(Dropout(p_dropout))
     
     # Add output layer with softmax activation
-    model.add(Dense(units=n_classes,
-                   activation='softmax',
-                   use_bias=True,
-                   bias_initializer='zeros',
-                   name='output',
-                   kernel_initializer='truncated_normal',
-                   kernel_regularizer=tf.keras.regularizers.l2(lambda_l2)))
+    if lambda_l2:
+        model.add(Dense(units=n_classes,
+                       activation='softmax',
+                       use_bias=True,
+                       bias_initializer='zeros',
+                       name='output',
+                       kernel_initializer='truncated_normal',
+                       kernel_regularizer=l2(lambda_l2)))
+    else:
+        model.add(Dense(units=n_classes,
+                       activation='softmax',
+                       use_bias=True,
+                       bias_initializer='zeros',
+                       name='output',
+                       kernel_initializer='truncated_normal'))
     
     opt = tf.keras.optimizers.Adam(lr=lrate, beta_1=.9, beta_2=0.999,
                                  epsilon=None, decay=0.0, amsgrad=False)
