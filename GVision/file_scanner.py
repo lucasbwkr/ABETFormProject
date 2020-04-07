@@ -16,7 +16,7 @@ class Folder:
                 self.num_of_files = len(files)
                 #file_output_result default value is none until stored later
                 self.file_output_result = ["None"] * len(files) 
-
+                
         def save_output_result(self, file : str, result : str):
                 """a Setter for File_ourput_results. Populates the correct index to ensure parrel arrays """
                 self.file_output_result[self.files.index(file)] = result

@@ -4,6 +4,7 @@ import io
 from google.cloud import vision
 from google.cloud.vision import types
 from PIL import Image, ImageDraw
+from scipy import stats
 
 #https://cloud.google.com/functions/docs/tutorials/ocr
 class FeatureType(Enum):
@@ -34,10 +35,23 @@ def crop_box(image, bounds):
     cropped_images = []
     offsety= 80
     offsetx = 150
+    
+    tupleSets = []
+    # numItems = 0
+    # runningMeanX = 0
+    # runningSumX = 0
+    # runningMeanY = 0
+    # runningSumY = 0
+    
+
 
     for bound in bounds:
-        meanx = (bound.vertices[0].x + bound.vertices[2].x ) / 2
-        meany = (bound.vertices[0].y + bound.vertices[2].y ) / 2
+        meanx = (bound.vertices[0].x + bound.vertices[1].x + bound.vertices[2].x + bound.vertices[3].x) / 4
+        meany = (bound.vertices[0].y + bound.vertices[1].y + bound.vertices[2].y + bound.vertices[3].y) / 4
+        
+        #tupleSets.append((meanx, meany, bound))
+        tupleSets.append((meanx, meany))
+
         cropped_images.append(
             image.crop((
                 meanx - offsetx, 
@@ -45,7 +59,63 @@ def crop_box(image, bounds):
                 meanx + offsetx, 
                 meany + offsety)))
 
+    tupleSets.sort(key = lambda x: x[1])
+
+    tupleGroupingsY = []
+    tempAr = []
+    for i in range(len(tupleSets) - 1):
+        tempAr.append(tupleSets[i])
+        if abs(tupleSets[i][1] - tupleSets[i + 1][1]) > 50:
+            tempAr.sort(key = lambda x: x[0])
+            tupleGroupingsY.append(tempAr)
+            tempAr = []
+    
+    tempAr.append(tupleSets[len(tupleSets) - 1])
+    tempAr.sort(key = lambda x: x[0])
+    tupleGroupingsY.append(tempAr)
+
+    xSums = [0,0,0,0,0]
+    completeLines = len(tupleGroupingsY)
+    for i in range(len(tupleGroupingsY)):
+        if len(tupleGroupingsY[i]) == 5:
+            for j in range(len(tupleGroupingsY[i])):
+                xSums[j] += tupleGroupingsY[i][j][0]
+        else:
+            completeLines -= 1
+    
+    xMean = [0,0,0,0,0]
+    for i in range(len(xMean)):
+        xMean[i] = xSums[i] / completeLines
+
+    
+
+    for i in range(len(tupleGroupingsY)):
+        if len(tupleGroupingsY[i]) != 5:
+            for j in range(len(tupleGroupingsY[i])):
+                if abs(tupleGroupingsY[i][j][0] - xMean[j]) > 100:
+                    if len(tupleGroupingsY[i]) < 5:
+                        edgeInserts(tupleGroupingsY, i, j)
+                    print("POP", i, j)
+
+    # https://pythonprogramming.net/how-to-program-best-fit-line-machine-learning-tutorial/
+
+
+    for item in tupleGroupingsY:
+        print(item)
     return cropped_images
+
+
+def edgeInserts(tupleGroup, i, j):
+    if i == 0 and j == 0:
+        print(0, 0)
+    elif i == 0 and j == 4:
+        print(0, 4)
+    elif i == 7 and j == 0:
+        print(7, 0)
+    elif i == 7 and j == 4:
+        print(7, 4)
+    else:
+        print("Not Applicable")
 
 def save_images(images, file_name):
     count = 0
@@ -124,10 +194,14 @@ def get_document_bounds(image_file, feature):
                         bounds.pop()
                     lastValue = temp
                     bounds.append(paragraph.bounding_box)
+                    #print(temp)
                 #print(para)
 
     # The list `bounds` contains the coordinates of the bounding boxes.
+    #print (bounds)
     return bounds
+
+# def linearCheck():
 
 
 def render_doc_text(filein, fileout):
@@ -143,6 +217,7 @@ def render_doc_text(filein, fileout):
     #temp.show()
     if fileout != 0:
         save_images(images, fileout)
+        
     else:
         image.show()
 
