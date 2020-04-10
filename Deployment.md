@@ -11,6 +11,7 @@ This is subject to change as we merge all of our changes into the master branch.
 I reccommend creating a virtual environment first with the following commands:
 
 `virtualenv venv`
+
 `source venv/bin/activate`
 
 Following this install requirements.txt from the root project directory.
