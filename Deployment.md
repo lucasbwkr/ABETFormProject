@@ -1,6 +1,7 @@
 # Deployment
 
 To run this project you will need all dependencies. Currently the most up to date branch is the lucasTesting branch which contains code for running the GUI application with the basic framework for scanning forms. 
+
 `git checkout lucasTesting`
 
 This is subject to change as we merge all of our changes into the master branch. 
@@ -13,11 +14,13 @@ I reccommend creating a virtual environment first with the following commands:
 `source venv/bin/activate`
 
 Following this install requirements.txt from the root project directory.
+
 `pip install -r requirements.txt`
 
 ## Running
 
 Run the python file "main.py" located in "ABETFormProject/main.py".
+
 `python main.py`
 
 ## Goals
