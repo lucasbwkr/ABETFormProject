@@ -4,7 +4,7 @@ To run this project you will need all dependencies. Currently the most up to dat
 
 `git checkout lucasTesting`
 
-This is subject to change as we merge all of our changes into the master branch. 
+This is subject to change as we merge all of our changes into the master branch after which I will update this document.
 
 ## Dependencies
 
