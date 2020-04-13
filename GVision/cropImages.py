@@ -4,7 +4,6 @@ import io
 from google.cloud import vision
 from google.cloud.vision import types
 from PIL import Image, ImageDraw
-from scipy import stats
 
 #https://cloud.google.com/functions/docs/tutorials/ocr
 class FeatureType(Enum):
@@ -36,31 +35,25 @@ def crop_box(image, bounds):
     offsety= 80
     offsetx = 150
     
-    tupleSets = []
-    # numItems = 0
-    # runningMeanX = 0
-    # runningSumX = 0
-    # runningMeanY = 0
-    # runningSumY = 0
-    
-
+    tupleSets = []    
 
     for bound in bounds:
         meanx = (bound.vertices[0].x + bound.vertices[1].x + bound.vertices[2].x + bound.vertices[3].x) / 4
         meany = (bound.vertices[0].y + bound.vertices[1].y + bound.vertices[2].y + bound.vertices[3].y) / 4
-        
-        #tupleSets.append((meanx, meany, bound))
         tupleSets.append((meanx, meany))
+    # Uncomment this for early exit (avoid running computations)
+    #     cropped_images.append(
+    #         image.crop((
+    #             meanx - offsetx, 
+    #             meany - offsety, 
+    #             meanx + offsetx, 
+    #             meany + offsety)))
 
-        cropped_images.append(
-            image.crop((
-                meanx - offsetx, 
-                meany - offsety, 
-                meanx + offsetx, 
-                meany + offsety)))
+    # return cropped_images
 
+
+    # Form the verticle matrice of values
     tupleSets.sort(key = lambda x: x[1])
-
     tupleGroupingsY = []
     tempAr = []
     for i in range(len(tupleSets) - 1):
@@ -69,53 +62,148 @@ def crop_box(image, bounds):
             tempAr.sort(key = lambda x: x[0])
             tupleGroupingsY.append(tempAr)
             tempAr = []
-    
     tempAr.append(tupleSets[len(tupleSets) - 1])
     tempAr.sort(key = lambda x: x[0])
     tupleGroupingsY.append(tempAr)
 
-    xSums = [0,0,0,0,0]
-    completeLines = len(tupleGroupingsY)
+
+    # Form the horizontal matrice of values
+    tupleSets.sort(key = lambda x: x[0])
+    tupleGroupingsX = []
+    tempAr = []
+    for i in range(len(tupleSets) - 1):
+        tempAr.append(tupleSets[i])
+        if abs(tupleSets[i][0] - tupleSets[i + 1][0]) > 50:
+            tempAr.sort(key = lambda x: x[1])
+            tupleGroupingsX.append(tempAr)
+            tempAr = []
+    tempAr.append(tupleSets[len(tupleSets) - 1])
+    tempAr.sort(key = lambda x: x[1])
+    tupleGroupingsX.append(tempAr)
+
+
+    for i in tupleGroupingsY:
+        print(i)
+    
+    for i in tupleGroupingsX:
+        print(i)
+
+    if (len(tupleGroupingsY) < 8) or (len(tupleGroupingsX)) < 5:
+        print("Houston we have a problem")
+        return -1
+    
+    # Calculate vertical slopes and intercepts
+    xSumsV = [0,0,0,0,0]
+    ySumsV = [0,0,0,0,0]
+    xySumsV = [0,0,0,0,0]
+    xxSumsV = [0,0,0,0,0]
+    completeLinesV = len(tupleGroupingsY)
     for i in range(len(tupleGroupingsY)):
         if len(tupleGroupingsY[i]) == 5:
             for j in range(len(tupleGroupingsY[i])):
-                xSums[j] += tupleGroupingsY[i][j][0]
+                xSumsV[j] += tupleGroupingsY[i][j][0]
+                ySumsV[j] += tupleGroupingsY[i][j][1]
+                xySumsV[j] += tupleGroupingsY[i][j][0] * tupleGroupingsY[i][j][1]
+                xxSumsV[j] += tupleGroupingsY[i][j][0] * tupleGroupingsY[i][j][0]
         else:
-            completeLines -= 1
+            completeLinesV -= 1
     
-    xMean = [0,0,0,0,0]
-    for i in range(len(xMean)):
-        xMean[i] = xSums[i] / completeLines
+    if(completeLinesV == 0):
+        print("Houston we have a problem.")
+        return -1
+
+
+    xMeanV = [0,0,0,0,0]
+    yMeanV = [0,0,0,0,0]
+    xyMeanV = [0,0,0,0,0]
+    xxMeanV = [0,0,0,0,0]
+    slopeV = [0,0,0,0,0]
+    interceptV = [0,0,0,0,0]
+    for i in range(len(xMeanV)):
+        xMeanV[i] = xSumsV[i] / completeLinesV
+        yMeanV[i] = ySumsV[i] / completeLinesV
+        xyMeanV[i] = xySumsV[i] / completeLinesV
+        xxMeanV[i] = xxSumsV[i] / completeLinesV
+        slopeV[i] = (xMeanV[i]*yMeanV[i] - xyMeanV[i])/(xMeanV[i]*xMeanV[i] - xxMeanV[i])
+        interceptV[i] = yMeanV[i] - slopeV[i]*xMeanV[i]
+        # print ("VSlope ", i, ": ",slopeV[i])
+        # print("VIntercept ", i, ": ", interceptV[i])
+    
+
+    # Calculate horizontal slopes and intercepts
+    xSumsH = [0,0,0,0,0,0,0,0]
+    ySumsH = [0,0,0,0,0,0,0,0]
+    xySumsH = [0,0,0,0,0,0,0,0]
+    xxSumsH = [0,0,0,0,0,0,0,0]
+    completeLinesH = len(tupleGroupingsX)
+    for i in range(len(tupleGroupingsX)):
+        if len(tupleGroupingsX[i]) == 8:
+            for j in range(len(tupleGroupingsX[i])):
+                xSumsH[j] += tupleGroupingsX[i][j][0]
+                ySumsH[j] += tupleGroupingsX[i][j][1]
+                xySumsH[j] += tupleGroupingsX[i][j][0] * tupleGroupingsX[i][j][1]
+                xxSumsH[j] += tupleGroupingsX[i][j][0] * tupleGroupingsX[i][j][0]
+        else:
+            completeLinesH -= 1
+
+    
+    if(completeLinesH == 0):
+        print("Houston we have a problem.")
+        return -1
+
+    xMeanH = [0,0,0,0,0,0,0,0]
+    yMeanH = [0,0,0,0,0,0,0,0]
+    xyMeanH = [0,0,0,0,0,0,0,0]
+    xxMeanH = [0,0,0,0,0,0,0,0]
+    slopeH = [0,0,0,0,0,0,0,0]
+    interceptH = [0,0,0,0,0,0,0,0]
+    for i in range(len(xMeanH)):
+        xMeanH[i] = xSumsH[i] / completeLinesH
+        yMeanH[i] = ySumsH[i] / completeLinesH
+        xyMeanH[i] = xySumsH[i] / completeLinesH
+        xxMeanH[i] = xxSumsH[i] / completeLinesH
+        if (xMeanH[i]*xMeanH[i] - xxMeanH[i]) == 0:
+            slopeH[i] = 100000000
+        else:
+            slopeH[i] = (xMeanH[i]*yMeanH[i] - xyMeanH[i])/(xMeanH[i]*xMeanH[i] - xxMeanH[i])
+
+        interceptH[i] = yMeanH[i] - slopeH[i]*xMeanH[i]
+        # print ("HSlope ", i, ": ", slopeH[i])
+        # print("HIntercept ", i, ": ", interceptH[i])
 
     
 
-    for i in range(len(tupleGroupingsY)):
-        if len(tupleGroupingsY[i]) != 5:
-            for j in range(len(tupleGroupingsY[i])):
-                if abs(tupleGroupingsY[i][j][0] - xMean[j]) > 100:
-                    if len(tupleGroupingsY[i]) < 5:
-                        edgeInserts(tupleGroupingsY, i, j)
-                    print("POP", i, j)
 
     # https://pythonprogramming.net/how-to-program-best-fit-line-machine-learning-tutorial/
+    # Predict positions of answers.
+    estimatedPositions = []
+    for i in range(8):
+        tempAr = []
+        for j in range(5):
+            tempAr.append(getEstimatedPosition(slopeV[j],slopeH[i],interceptV[j], interceptH[i]))
+        estimatedPositions.append(tempAr)
 
 
-    for item in tupleGroupingsY:
-        print(item)
+    # Crop the image based upon this estimation
+    for i in range(len(estimatedPositions)):
+        for j in range(len(estimatedPositions[i])):
+            cropped_images.append(
+                    image.crop((
+                        estimatedPositions[i][j][0] - offsetx, 
+                        estimatedPositions[i][j][1] - offsety, 
+                        estimatedPositions[i][j][0] + offsetx, 
+                        estimatedPositions[i][j][1] + offsety)))
+
     return cropped_images
 
 
-def edgeInserts(tupleGroup, i, j):
-    if i == 0 and j == 0:
-        print(0, 0)
-    elif i == 0 and j == 4:
-        print(0, 4)
-    elif i == 7 and j == 0:
-        print(7, 0)
-    elif i == 7 and j == 4:
-        print(7, 4)
-    else:
-        print("Not Applicable")
+def getEstimatedPosition(m1, m2, b1, b2):
+    x = (b2 - b1)/(m1 - m2)
+    y = (m1*b2-m2*b1)/(m1-m2)
+    x = round(x, 1)
+    y = round(y, 1)
+    return x, y
+
 
 def save_images(images, file_name):
     count = 0
@@ -143,29 +231,6 @@ def get_document_bounds(image_file, feature):
     lines = []
     breaks = vision.enums.TextAnnotation.DetectedBreak.BreakType
     lastValue = ''
-    #https://stackoverflow.com/questions/51972479/get-lines-and-paragraphs-not-symbols-from-google-vision-api-ocr-on-pdf/52086299
-    #for page in document.pages:
-     #   for block in page.blocks:
-      #      for paragraph in block.paragraphs:
-       #         para = ""
-        #        line = ""
-                # for word in paragraph.words:
-                #     for symbol in word.symbols:
-                #         line += symbol.text
-                #         if symbol.property.detected_break.type == breaks.SPACE:
-                #             line += ' '
-                #         if symbol.property.detected_break.type == breaks.EOL_SURE_SPACE:
-                #             line += ' '
-                #             lines.append(line)
-                #             para += line
-                #             line = ''
-                #         if symbol.property.detected_break.type == breaks.LINE_BREAK:
-                #             lines.append(line)
-                #             para += line
-                #             line = ''
-                # paragraphs.append(para)
-
-    #print(paragraphs)
 
     # Collect specified feature bounds by enumerating all document features
     for page in document.pages:
@@ -194,8 +259,8 @@ def get_document_bounds(image_file, feature):
                         bounds.pop()
                     lastValue = temp
                     bounds.append(paragraph.bounding_box)
-                    #print(temp)
-                #print(para)
+                #     print(temp)
+                # print(para)
 
     # The list `bounds` contains the coordinates of the bounding boxes.
     #print (bounds)
@@ -207,16 +272,13 @@ def get_document_bounds(image_file, feature):
 def render_doc_text(filein, fileout):
     image = Image.open(filein)
     bounds = get_document_bounds(filein, FeatureType.PARA)
+    
     images = crop_box(image, bounds)
-    #temp = image.crop((100, 200, 150, 250))
-    #draw_boxes(image, bounds, 'blue')
-    #bounds = get_document_bounds(filein, FeatureType.PARA)
-    #draw_boxes(image, bounds, 'red')
-    #bounds = get_document_bounds(filein, FeatureType.WORD)
-    #draw_boxes(image, bounds, 'yellow')
-    #temp.show()
     if fileout != 0:
-        save_images(images, fileout)
+        if images != -1:
+            save_images(images, fileout)
+        else:
+            print(filein)
         return images
     else:
         image.show()
