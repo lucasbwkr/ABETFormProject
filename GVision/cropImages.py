@@ -81,13 +81,13 @@ def crop_box(image, bounds):
     tempAr.sort(key = lambda x: x[1])
     tupleGroupingsX.append(tempAr)
     
-    for i in tupleGroupingsX:
-        print(i)
+    # for i in tupleGroupingsX:
+    #     print(i)
 
-    print()
+    # print()
 
-    for i in tupleGroupingsY:
-        print(i)
+    # for i in tupleGroupingsY:
+    #     print(i)
 
 
     # Calculate vertical slopes and intercepts

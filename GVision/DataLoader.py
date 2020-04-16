@@ -8,7 +8,22 @@ import cropImages as getAnswers
 import numpy as np
 from typing import List
 from os.path import isfile, join
+import matplotlib.pyplot as plt
+from math import ceil
+from pylab import MaxNLocator
+from matplotlib.backends.backend_pdf import PdfPages
+
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3' 
 from tensorflow.keras.models import load_model
+
+FONTSIZE = 18
+FIGURE_SIZE = (7,7)
+
+plt.rcParams.update({'font.size': FONTSIZE})
+plt.rcParams['figure.figsize'] = FIGURE_SIZE
+# Default tick label size
+plt.rcParams['xtick.labelsize'] = FONTSIZE - 8
+plt.rcParams['ytick.labelsize'] = FONTSIZE
 
 def create_result_folder(folder: object):
     ''' Summary ::  Creates and populates folders and resulting file
@@ -32,7 +47,7 @@ def create_result_folder(folder: object):
         f.close()
 
 
-def run_file_through_google_vision(dir_tree: object):
+def run_file_through_google_vision(dir_tree: object, dist):
     ''' Summary ::  Passes every valid file in directory tree into
                     a custom built google vision function to validate image 
 
@@ -40,9 +55,8 @@ def run_file_through_google_vision(dir_tree: object):
                     file into 'googleVisionTest.read_image()' function, and storing the result
     '''
     #TODO ::  might want to change logic when less then 100 files are given
-    hashtag_loading_block_size = int(dir_tree.file_count/100)
-    if hashtag_loading_block_size == 0:
-        hashtag_loading_block_size = 1
+    hashtag_loading_block_size = int(dir_tree.file_count)
+    print(hashtag_loading_block_size)
 
     model = load_model('model.h5')
     start = 0
@@ -60,17 +74,44 @@ def run_file_through_google_vision(dir_tree: object):
             preds = model.predict(imgs)
             preds = preds[:,0]
             preds = preds.reshape((questions_per_page, answers_per_question))
-            result = preds > .90
-            print(result)  
+            result = preds > .95
+            # print(preds)
+            # print(result)  
+            for i in range(questions_per_page):
+                indices = np.argwhere(result[i] == True)
+                if len(indices) > 1:
+                    max_idx = np.argmax(preds[i])
+                    for j in range(answers_per_question):
+                        if j != max_idx:
+                            result[i,j] = False
             total_result += result
-
-            if start % hashtag_loading_block_size == 0:
-                time.sleep(.01)
-                custom_progressbar.update_progress(
-                    (.01*(start/hashtag_loading_block_size)))
+            # if start % hashtag_loading_block_size == 0:
+            #     time.sleep(.01)
             start += 1
+            custom_progressbar.update_progress(
+                (start/hashtag_loading_block_size))
+    
+    generate_plots(total_result, dist)
 
-    print (total_result)
+def generate_plots(result, dist):
+    answers = ['Strongly\nDisagree','Disagree', 'Netural', 'Agree', 'Strongly\nAgree']
+    pdf = PdfPages(dist +'\\ABETresults.pdf')
+    i = 1
+    for r in result:
+        fig = plt.figure()
+        yint = range(int(min(r)), int((max(r))+1))
+        plt.yticks(yint)
+        plt.title('Question ' + str(i))
+        plt.xlabel('Answers')
+        plt.ylabel('Count')
+        plt.bar(answers, r)
+        pdf.savefig(fig)
+        i += 1
+    pdf.close()
+
+
+
+
 
 def create_result_dir_tree(dir_tree: object):
     ''' Summary ::  Creates and populates directory tree
@@ -111,9 +152,10 @@ def start(path, dist):
     print("Number of Files Scanned :: " + str(dir_tree.file_count) + "\n")
 
     print("\nCalulating Scanned Files :: \n")
-    results = run_file_through_google_vision(dir_tree)
+    run_file_through_google_vision(dir_tree, dist)
 
     print("\n\nOutputting Results . . .\n")
     create_result_dir_tree(dir_tree, )
     # Opening Dist Folder
-    webbrowser.open('file:///' + dist)
+    # webbrowser.open('file:///' + dist)
+    webbrowser.open('file:///' + dist + '\\ABETresults.pdf')
