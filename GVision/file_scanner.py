@@ -16,7 +16,18 @@ class Folder:
                 self.num_of_files = len(files)
                 #file_output_result default value is none until stored later
                 self.file_output_result = ["None"] * len(files) 
+                
 
+        #result = {
+        #  'q1': {
+        #       'Strongly Agree': 2,
+                # 'Agree': 3,
+                # ...
+        # }
+        # }
+        #
+        #
+        #
         def save_output_result(self, file : str, result : str):
                 """a Setter for File_ourput_results. Populates the correct index to ensure parrel arrays """
                 self.file_output_result[self.files.index(file)] = result
@@ -41,6 +52,8 @@ class Folder:
             return new_file
 
         def is_image_file(self, file_name : str) -> bool:
+            if(file_name == '.DS_Store'):
+                return False
             #TODO create a function and will check for invalid files
             return True
         
