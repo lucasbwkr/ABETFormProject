@@ -41,7 +41,7 @@ def crop_box(image, bounds):
         meanx = (bound.vertices[0].x + bound.vertices[1].x + bound.vertices[2].x + bound.vertices[3].x) / 4
         meany = (bound.vertices[0].y + bound.vertices[1].y + bound.vertices[2].y + bound.vertices[3].y) / 4
         tupleSets.append((meanx, meany))
-    # Uncomment this for early exit (avoid running computations)
+    #Uncomment this for early exit (avoid running computations)
     #     cropped_images.append(
     #         image.crop((
     #             meanx - offsetx, 
@@ -52,7 +52,7 @@ def crop_box(image, bounds):
     # return cropped_images
 
 
-    # Form the verticle matrice of values
+    # Form the verticle matrix of values
     tupleSets.sort(key = lambda x: x[1])
     tupleGroupingsY = []
     tempAr = []
@@ -67,7 +67,7 @@ def crop_box(image, bounds):
     tupleGroupingsY.append(tempAr)
 
 
-    # Form the horizontal matrice of values
+    # Form the horizontal matrix of values
     tupleSets.sort(key = lambda x: x[0])
     tupleGroupingsX = []
     tempAr = []
@@ -80,18 +80,16 @@ def crop_box(image, bounds):
     tempAr.append(tupleSets[len(tupleSets) - 1])
     tempAr.sort(key = lambda x: x[1])
     tupleGroupingsX.append(tempAr)
-
-
-    for i in tupleGroupingsY:
-        print(i)
     
     for i in tupleGroupingsX:
         print(i)
 
-    if (len(tupleGroupingsY) < 8) or (len(tupleGroupingsX)) < 5:
-        print("Houston we have a problem")
-        return -1
-    
+    print()
+
+    for i in tupleGroupingsY:
+        print(i)
+
+
     # Calculate vertical slopes and intercepts
     xSumsV = [0,0,0,0,0]
     ySumsV = [0,0,0,0,0]
@@ -107,11 +105,6 @@ def crop_box(image, bounds):
                 xxSumsV[j] += tupleGroupingsY[i][j][0] * tupleGroupingsY[i][j][0]
         else:
             completeLinesV -= 1
-    
-    if(completeLinesV == 0):
-        print("Houston we have a problem.")
-        return -1
-
 
     xMeanV = [0,0,0,0,0]
     yMeanV = [0,0,0,0,0]
@@ -126,8 +119,6 @@ def crop_box(image, bounds):
         xxMeanV[i] = xxSumsV[i] / completeLinesV
         slopeV[i] = (xMeanV[i]*yMeanV[i] - xyMeanV[i])/(xMeanV[i]*xMeanV[i] - xxMeanV[i])
         interceptV[i] = yMeanV[i] - slopeV[i]*xMeanV[i]
-        # print ("VSlope ", i, ": ",slopeV[i])
-        # print("VIntercept ", i, ": ", interceptV[i])
     
 
     # Calculate horizontal slopes and intercepts
@@ -146,10 +137,6 @@ def crop_box(image, bounds):
         else:
             completeLinesH -= 1
 
-    
-    if(completeLinesH == 0):
-        print("Houston we have a problem.")
-        return -1
 
     xMeanH = [0,0,0,0,0,0,0,0]
     yMeanH = [0,0,0,0,0,0,0,0]
@@ -162,14 +149,9 @@ def crop_box(image, bounds):
         yMeanH[i] = ySumsH[i] / completeLinesH
         xyMeanH[i] = xySumsH[i] / completeLinesH
         xxMeanH[i] = xxSumsH[i] / completeLinesH
-        if (xMeanH[i]*xMeanH[i] - xxMeanH[i]) == 0:
-            slopeH[i] = 100000000
-        else:
-            slopeH[i] = (xMeanH[i]*yMeanH[i] - xyMeanH[i])/(xMeanH[i]*xMeanH[i] - xxMeanH[i])
+        slopeH[i] = (xMeanH[i]*yMeanH[i] - xyMeanH[i])/(xMeanH[i]*xMeanH[i] - xxMeanH[i])
 
         interceptH[i] = yMeanH[i] - slopeH[i]*xMeanH[i]
-        # print ("HSlope ", i, ": ", slopeH[i])
-        # print("HIntercept ", i, ": ", interceptH[i])
 
     
 

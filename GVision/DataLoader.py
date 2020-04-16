@@ -49,34 +49,28 @@ def run_file_through_google_vision(dir_tree: object):
 
     questions_per_page = 8
     answers_per_question = 5
-    total_result = np.zeros((questions_per_page,answers_per_question))
-    tempAr = []
+    total_result = np.zeros((questions_per_page, answers_per_question))
     for x in dir_tree.folders:
         for y in x.files:
             #x.save_output_result(y, GVT.read_image(x.directory+"/"+y))
             imgs = getAnswers.get_file_answers(x.directory+"/"+y,x.save_dist+"/"+y)
 
-            
-            if imgs == -1:
-                tempAr.append(y)
-            else:
-                imgs = [np.asarray(img.convert('L')).reshape(160, 300,1) for img in imgs]
-                imgs = np.array(imgs, dtype=np.float32)
-                preds = model.predict(imgs)
-                preds = preds[:,0]
-                preds = preds.reshape((questions_per_page, answers_per_question))
-                result = preds > .90
-                print(preds)  
-                total_result += result
+            imgs = [np.asarray(img.convert('L')).reshape(160, 300,1) for img in imgs]
+            imgs = np.array(imgs, dtype=np.float32)
+            preds = model.predict(imgs)
+            preds = preds[:,0]
+            preds = preds.reshape((questions_per_page, answers_per_question))
+            result = preds > .90
+            print(result)  
+            total_result += result
 
             if start % hashtag_loading_block_size == 0:
                 time.sleep(.01)
                 custom_progressbar.update_progress(
                     (.01*(start/hashtag_loading_block_size)))
             start += 1
-    # print(total_result)
-    for y in tempAr:
-        print (y)
+
+    print (total_result)
 
 def create_result_dir_tree(dir_tree: object):
     ''' Summary ::  Creates and populates directory tree
@@ -92,7 +86,7 @@ def create_result_dir_tree(dir_tree: object):
 
     start = 0
     for x in dir_tree.folders:
-        create_result_folder(x)
+        #create_result_folder(x)
         if start % hashtag_loading_block_size == 0:
             time.sleep(.01)
             custom_progressbar.update_progress(
