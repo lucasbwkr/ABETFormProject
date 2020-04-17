@@ -15,6 +15,7 @@ Linux: `export GOOGLE_APPLICATION_CREDENTIALS=\PATH\TO\ABETFormProject\GVision\g
 
 Mac: ?? (sorry)
 
+
 If all went well to here, you should be able to run the project. 
 
 `cd GVision`
