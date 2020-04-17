@@ -3,7 +3,22 @@
 
 ## How to use
 
-Install the correct dependencies.
+Install the correct dependencies. Use the command below to install them while in the root directory of the project. I reccomend being in a virtual environment while installing the prerequisites. 
+
+`pip install -r requirements.txt`
+
+First of all we need to supply Google Vision with an authentication token. This is located in the root directory of the project `gVisionAuth.json`. We like to live dangerously, so this is on a public repo. Please don't spend all our credits. Activate it by adding to to your environmental variables. Below is an example for Windows and Linux(BASH). Insert the appropriate path to this project.
+
+Windows: `$env:GOOGLE_APPLICATION_CREDENTIALS="C:\PATH\TO\ABETFormProject\GVision\gVisionAuth.json"`
+Linux: `export GOOGLE_APPLICATION_CREDENTIALS=\PATH\TO\ABETFormProject\GVision\gVisionAuth.json`
+Mac: ?? (sorry)
+
+If all went well to here, you should be able to run the project. 
+
+`cd GVision`
+`python main.py`
+
+Once you see the GUI load up we have provided sample forms to scan. These are located in `ABETFormProject/Forms/`. The input folder contains ten complete forms to scan. Select the output folder as a convenient destination. Then click begin in the lower right. With any luck, you'll be given an output showing various graphical representations of the data. Yay!
 
 ## Use Case
 
