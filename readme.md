@@ -11,7 +11,7 @@ First of all we need to supply Google Vision with an authentication token. This 
 
 Windows: `$env:GOOGLE_APPLICATION_CREDENTIALS="C:\PATH\TO\ABETFormProject\GVision\gVisionAuth.json"`
 
-Linux: `export GOOGLE_APPLICATION_CREDENTIALS=\PATH\TO\ABETFormProject\GVision\gVisionAuth.json`
+Linux: `export GOOGLE_APPLICATION_CREDENTIALS=/PATH/TO/ABETFormProject/GVision/gVisionAuth.json`
 
 Mac: ?? (sorry)
 
