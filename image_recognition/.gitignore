@@ -1,0 +1,6 @@
+*.npy
+error
+output
+__pycache__/*
+results/*
+data/*

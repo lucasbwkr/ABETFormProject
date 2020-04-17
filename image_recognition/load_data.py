@@ -1,6 +1,5 @@
 import numpy as np
 import os
-import png
 import re
 import fnmatch
 from PIL import Image
@@ -45,4 +44,10 @@ def get_data(base_dir, train_percent, val_percent):
     
     return ins_train, outs_train, ins_val, outs_val
 
-    
+
+if __name__ == '__main__':
+    ins_train, outs_train, ins_val, outs_val = get_data('data', .9, .1)
+    np.save('data/ins_train', ins_train)
+    np.save('data/outs_train', outs_train)
+    np.save('data/ins_val', ins_val)
+    np.save('data/outs_val', outs_val)
